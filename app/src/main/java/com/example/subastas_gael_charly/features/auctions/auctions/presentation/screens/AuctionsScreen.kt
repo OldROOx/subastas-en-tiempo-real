@@ -1,10 +1,11 @@
-package com.example.subastas_gael_charly.features.auctions.presentation.screens
+package com.example.subastas_gael_charly.features.auctions.auctions.presentation.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.subastas_gael_charly.features.auctions.auctions.presentation.components.AuctionItem
 import com.example.subastas_gael_charly.features.auctions.auctions.presentation.viewmodels.AuctionsViewModel
@@ -16,7 +17,6 @@ fun AuctionsScreen(viewModel: AuctionsViewModel) {
     val auctions by viewModel.auctions.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Pilar de Programación Reactiva: Escuchar eventos de error (Rollback)
     LaunchedEffect(Unit) {
         viewModel.errorEvents.collectLatest { errorMessage ->
             snackbarHostState.showSnackbar(errorMessage)
@@ -35,7 +35,7 @@ fun AuctionsScreen(viewModel: AuctionsViewModel) {
         }
     ) { padding ->
         if (auctions.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         } else {

@@ -1,4 +1,4 @@
-package com.example.subastas_gael_charly.features.auctions.data.datasources.remote.mapper
+package com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.mapper
 
 import com.example.subastas_gael_charly.core.database.entities.AuctionEntity
 import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.AuctionDto

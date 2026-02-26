@@ -6,5 +6,5 @@ import javax.inject.Inject
 class GetAuctionsUseCase @Inject constructor(
     private val repository: AuctionRepository
 ) {
-    suspend operator fun invoke() = repository.getAuctions()
+    operator fun invoke() = repository.getAuctionsStream()
 }
