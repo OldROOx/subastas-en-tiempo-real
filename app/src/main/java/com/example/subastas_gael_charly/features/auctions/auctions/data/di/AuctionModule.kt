@@ -1,6 +1,7 @@
 package com.example.subastas_gael_charly.features.auctions.auctions.data.di
 
 import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.api.AuctionApi
+import com.example.subastas_gael_charly.features.auctions.auctions.data.repositories.AuctionRepositoryImpl
 import com.example.subastas_gael_charly.features.auctions.auctions.domain.repositories.AuctionRepository
 import dagger.Binds
 import dagger.Module
