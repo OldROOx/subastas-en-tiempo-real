@@ -1,6 +1,5 @@
-package com.example.subastas_gael_charly.ui.theme
+package com.example.subastas_gael_charly.core.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

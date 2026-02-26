@@ -1,4 +1,4 @@
-package com.example.subastas_gael_charly.ui.theme
+package com.example.subastas_gael_charly.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

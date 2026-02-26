@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.subastas_gael_charly.ui.theme.SubastasgaelcharlyTheme
+import com.example.subastas_gael_charly.core.ui.theme.SubastasgaelcharlyTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
