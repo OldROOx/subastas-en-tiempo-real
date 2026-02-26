@@ -24,7 +24,10 @@ class AuctionsViewModel @Inject constructor(
     val errorEvents = _errorEvents.asSharedFlow()
 
     init {
-        viewModelScope.launch { repository.refreshAuctions() }
+        viewModelScope.launch {
+            repository.refreshAuctions() // Carga inicial
+            (repository as AuctionRepositoryImpl).startRealTimeUpdates() // Inicia tiempo real
+        }
     }
 
     fun bid(auctionId: Int, newPrice: Double, currentPrice: Double) {
