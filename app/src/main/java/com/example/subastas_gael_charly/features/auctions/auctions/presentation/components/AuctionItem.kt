@@ -49,7 +49,7 @@ fun AuctionItem(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = auction.status && !isOwner
             ) {
-                Text(if (isOwner) "Es tu subasta" else if (!auction.status) "Cerrada" else "Pujar +$10.00")
+                Text(if (isOwner) "Es tu subasta" else if (!auction.status) "Cerrada" else "Pujar")
             }
         }
     }
