@@ -35,7 +35,7 @@ fun BidsScreen(viewModel: BidsViewModel = hiltViewModel()) {
 
         LazyColumn {
             items(state.bids) { bid ->
-                Text("💰 ${bid.amount}")
+                Text("Monto:${bid.amount}")
             }
         }
     }

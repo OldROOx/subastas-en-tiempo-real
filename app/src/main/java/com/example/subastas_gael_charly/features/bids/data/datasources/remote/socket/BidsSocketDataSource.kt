@@ -15,10 +15,14 @@ class BidsSocketDataSource @Inject constructor(
     private val socket: Socket
 ) {
 
-    private val _bidsFlow = MutableSharedFlow<BidDTO>()
+    private val _bidsFlow = MutableSharedFlow<BidDTO>(
+        replay = 1,
+        extraBufferCapacity = 10
+    )
     val bidsFlow: SharedFlow<BidDTO> = _bidsFlow
 
     fun connect() {
+        // observeBids()
         socket.connect()
     }
 
@@ -39,7 +43,7 @@ class BidsSocketDataSource @Inject constructor(
         socket.emit("place_bid", json)
     }
 
-    fun observeBids() {
+    init {
         socket.on("new_bid") { args ->
             Log.d("SOCKET", "RAW EVENT: ${args.joinToString()}")
             if (args.isNotEmpty()) {

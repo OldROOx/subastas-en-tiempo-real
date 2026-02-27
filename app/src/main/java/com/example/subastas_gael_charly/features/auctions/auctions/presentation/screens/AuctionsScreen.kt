@@ -3,6 +3,8 @@ package com.example.subastas_gael_charly.features.auctions.auctions.presentation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,13 +15,22 @@ import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AuctionsScreen(viewModel: AuctionsViewModel) {
+fun AuctionsScreen(
+    viewModel: AuctionsViewModel,
+    onNavigateToCreate: () -> Unit
+) {
     val auctions by viewModel.auctions.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
-        viewModel.errorEvents.collectLatest { errorMessage ->
-            snackbarHostState.showSnackbar(errorMessage)
+        viewModel.errorEvents.collectLatest { msg ->
+            snackbarHostState.showSnackbar(msg)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.successEvents.collectLatest { msg ->
+            snackbarHostState.showSnackbar(msg)
         }
     }
 
@@ -32,6 +43,11 @@ fun AuctionsScreen(viewModel: AuctionsViewModel) {
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(onClick = onNavigateToCreate) {
+                Icon(Icons.Default.Add, contentDescription = "Nueva subasta")
+            }
         }
     ) { padding ->
         if (auctions.isEmpty()) {
@@ -47,8 +63,9 @@ fun AuctionsScreen(viewModel: AuctionsViewModel) {
                 items(auctions) { auction ->
                     AuctionItem(
                         auction = auction,
-                        onBidClick = { id, newPrice, oldPrice ->
-                            viewModel.bid(id, newPrice, oldPrice)
+                        currentUserId = viewModel.currentUserId,
+                        onBidClick = { id, ownerId, newPrice, oldPrice ->
+                            viewModel.bid(id, ownerId, newPrice, oldPrice)
                         }
                     )
                 }
