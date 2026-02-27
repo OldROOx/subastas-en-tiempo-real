@@ -2,8 +2,7 @@ package com.example.subastas_gael_charly.features.auth.data.datasources.remote.a
 
 import com.example.subastas_gael_charly.features.auth.data.datasources.remote.models.*
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface AuthApi {
     @POST("users/")
@@ -11,4 +10,13 @@ interface AuthApi {
 
     @POST("users/login")
     suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
+
+    @GET("users/{id}")
+    suspend fun getUserById(@Path("id") id: Int): Response<UserDto>
+
+    @PUT("users/{id}")
+    suspend fun updateUser(@Path("id") id: Int, @Body request: LoginRequest): Response<MessageResponse>
+
+    @DELETE("users/{id}")
+    suspend fun deleteUser(@Path("id") id: Int): Response<MessageResponse>
 }
