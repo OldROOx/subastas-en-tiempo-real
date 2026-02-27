@@ -42,3 +42,8 @@ data class BidListResponse(
     val message: String,
     val bids: List<BidDto>
 )
+
+data class PlaceBidRequest(
+    val user_id: Int,
+    val amount: Double
+)

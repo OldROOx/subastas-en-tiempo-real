@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.subastas_gael_charly.features.auctions.auctions.presentation.screens.AuctionsScreen
+import com.example.subastas_gael_charly.features.auctions.auctions.presentation.screens.CreateAuctionScreen
 import com.example.subastas_gael_charly.features.auctions.auctions.presentation.viewmodels.AuctionsViewModel
 import com.example.subastas_gael_charly.features.auth.presentation.screens.LoginScreen
 import com.example.subastas_gael_charly.features.auth.presentation.screens.RegisterScreen
@@ -15,6 +16,7 @@ sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Register : Screen("register")
     object Auctions : Screen("auctions")
+    object CreateAuction : Screen("create_auction")
 }
 
 @Composable
@@ -32,9 +34,7 @@ fun AppNavigation() {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
                 },
-                onGoToRegister = {
-                    navController.navigate(Screen.Register.route)
-                }
+                onGoToRegister = { navController.navigate(Screen.Register.route) }
             )
         }
 
@@ -42,18 +42,26 @@ fun AppNavigation() {
             val viewModel: AuthViewModel = hiltViewModel()
             RegisterScreen(
                 viewModel = viewModel,
-                onRegisterSuccess = {
-                    navController.popBackStack()
-                },
-                onGoToLogin = {
-                    navController.popBackStack()
-                }
+                onRegisterSuccess = { navController.popBackStack() },
+                onGoToLogin = { navController.popBackStack() }
             )
         }
 
         composable(Screen.Auctions.route) {
             val viewModel: AuctionsViewModel = hiltViewModel()
-            AuctionsScreen(viewModel = viewModel)
+            AuctionsScreen(
+                viewModel = viewModel,
+                onNavigateToCreate = { navController.navigate(Screen.CreateAuction.route) }
+            )
+        }
+
+        composable(Screen.CreateAuction.route) {
+            // Reutilizamos el mismo ViewModel del grafo padre para que refreshAuctions funcione
+            val viewModel: AuctionsViewModel = hiltViewModel()
+            CreateAuctionScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }

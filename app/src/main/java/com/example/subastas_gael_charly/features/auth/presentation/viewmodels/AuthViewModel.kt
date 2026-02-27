@@ -2,6 +2,7 @@ package com.example.subastas_gael_charly.features.auth.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.subastas_gael_charly.core.session.UserSession
 import com.example.subastas_gael_charly.features.auth.domain.usecases.LoginUseCase
 import com.example.subastas_gael_charly.features.auth.domain.usecases.RegisterUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,6 +45,8 @@ class AuthViewModel @Inject constructor(
             val result = loginUseCase(_uiState.value.username, _uiState.value.password)
             _uiState.value = _uiState.value.copy(isLoading = false)
             if (result.isSuccess) {
+                val user = result.getOrNull()!!
+                UserSession.login(user.id, user.username)
                 _events.emit(AuthEvent.LoginSuccess)
             } else {
                 _events.emit(AuthEvent.Error(result.exceptionOrNull()?.message ?: "Error desconocido"))

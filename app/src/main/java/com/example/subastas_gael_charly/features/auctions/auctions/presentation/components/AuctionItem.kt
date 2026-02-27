@@ -10,8 +10,11 @@ import com.example.subastas_gael_charly.features.auctions.auctions.domain.entiti
 @Composable
 fun AuctionItem(
     auction: Auction,
-    onBidClick: (Int, Double, Double) -> Unit
+    currentUserId: Int?,
+    onBidClick: (Int, Int?, Double, Double) -> Unit
 ) {
+    val isOwner = currentUserId != null && auction.userId == currentUserId
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -20,21 +23,33 @@ fun AuctionItem(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = auction.title, style = MaterialTheme.typography.headlineSmall)
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text(
                 text = "Precio Actual: $${auction.currentPrice}",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(16.dp))
+
+            if (isOwner) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "⭐ Tu subasta",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             Button(
                 onClick = {
-                    onBidClick(auction.id, auction.currentPrice + 10.0, auction.currentPrice)
+                    onBidClick(auction.id, auction.userId, auction.currentPrice + 10.0, auction.currentPrice)
                 },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = auction.status
+                enabled = auction.status && !isOwner
             ) {
-                Text("Pujar +$10.00")
+                Text(if (isOwner) "Es tu subasta" else if (!auction.status) "Cerrada" else "Pujar +$10.00")
             }
         }
     }

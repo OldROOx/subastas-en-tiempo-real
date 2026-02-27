@@ -1,10 +1,6 @@
 package com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.api
 
-import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.AuctionListResponse
-import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.AuctionResponse
-import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.BidListResponse
-import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.CreateAuctionRequest
-import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.PatchStatusRequest
+import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.*
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -23,4 +19,7 @@ interface AuctionApi {
 
     @GET("auctions/{id}/bids")
     suspend fun getBidsByAuction(@Path("id") id: Int): Response<BidListResponse>
+
+    @POST("auctions/{id}/bids")
+    suspend fun placeBid(@Path("id") id: Int, @Body request: PlaceBidRequest): Response<BidListResponse>
 }
