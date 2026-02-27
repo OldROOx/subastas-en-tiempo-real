@@ -17,7 +17,8 @@ import kotlinx.coroutines.flow.collectLatest
 @Composable
 fun AuctionsScreen(
     viewModel: AuctionsViewModel,
-    onNavigateToCreate: () -> Unit
+    onNavigateToCreate: () -> Unit,
+    onNavigateToBids: (Int) -> Unit
 ) {
     val auctions by viewModel.auctions.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -65,7 +66,7 @@ fun AuctionsScreen(
                         auction = auction,
                         currentUserId = viewModel.currentUserId,
                         onBidClick = { id, ownerId, newPrice, oldPrice ->
-                            viewModel.bid(id, ownerId, newPrice, oldPrice)
+                            onNavigateToBids(id)
                         }
                     )
                 }

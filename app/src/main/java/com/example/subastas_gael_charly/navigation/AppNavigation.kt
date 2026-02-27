@@ -11,12 +11,16 @@ import com.example.subastas_gael_charly.features.auctions.auctions.presentation.
 import com.example.subastas_gael_charly.features.auth.presentation.screens.LoginScreen
 import com.example.subastas_gael_charly.features.auth.presentation.screens.RegisterScreen
 import com.example.subastas_gael_charly.features.auth.presentation.viewmodels.AuthViewModel
+import com.example.subastas_gael_charly.features.bids.presentation.screens.BidsScreen
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Register : Screen("register")
     object Auctions : Screen("auctions")
     object CreateAuction : Screen("create_auction")
+    object Bids : Screen("bids/{auctionId}") {
+        fun createRoute(auctionId: Int) = "bids/$auctionId"
+    }
 }
 
 @Composable
@@ -49,19 +53,38 @@ fun AppNavigation() {
 
         composable(Screen.Auctions.route) {
             val viewModel: AuctionsViewModel = hiltViewModel()
+
             AuctionsScreen(
                 viewModel = viewModel,
-                onNavigateToCreate = { navController.navigate(Screen.CreateAuction.route) }
+                onNavigateToCreate = {
+                    navController.navigate(Screen.CreateAuction.route)
+                },
+                onNavigateToBids = { auctionId ->
+                    navController.navigate(
+                        Screen.Bids.createRoute(auctionId)
+                    )
+                }
             )
         }
 
         composable(Screen.CreateAuction.route) {
-            // Reutilizamos el mismo ViewModel del grafo padre para que refreshAuctions funcione
             val viewModel: AuctionsViewModel = hiltViewModel()
             CreateAuctionScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )
+        }
+
+        composable(
+            route = Screen.Bids.route
+        ) { backStackEntry ->
+
+            val auctionId = backStackEntry
+                .arguments
+                ?.getString("auctionId")
+                ?.toIntOrNull() ?: return@composable
+
+            BidsScreen()
         }
     }
 }
