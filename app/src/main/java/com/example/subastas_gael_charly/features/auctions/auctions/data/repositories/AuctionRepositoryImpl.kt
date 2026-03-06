@@ -5,6 +5,8 @@ import com.example.subastas_gael_charly.features.auctions.auctions.data.datasour
 import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.api.AuctionApi
 import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.mapper.toDomain
 import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.mapper.toEntity
+import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.CreateAuctionRequest
+import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.PlaceBidRequest
 import com.example.subastas_gael_charly.features.auctions.auctions.domain.entities.Auction
 import com.example.subastas_gael_charly.features.auctions.auctions.domain.repositories.AuctionRepository
 import kotlinx.coroutines.CoroutineScope
@@ -35,9 +37,39 @@ class AuctionRepositoryImpl @Inject constructor(
         dao.updatePrice(id, price)
     }
 
-    override suspend fun placeBidRemote(id: Int, amount: Double): Result<Unit> {
+    override suspend fun placeBidRemote(auctionId: Int, userId: Int, amount: Double): Result<Unit> {
         return try {
-            Result.success(Unit)
+            val response = api.placeBid(auctionId, PlaceBidRequest(user_id = userId, amount = amount))
+            if (response.isSuccessful) Result.success(Unit)
+            else Result.failure(Exception("Error al pujar: ${response.code()}"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun createAuction(
+        title: String,
+        currentPrice: Double,
+        endTime: String,
+        userId: Int
+    ): Result<Unit> {
+        return try {
+            val response = api.createAuction(
+                CreateAuctionRequest(
+                    title = title,
+                    current_price = currentPrice,
+                    end_time = endTime,
+                    user_id = userId
+                )
+            )
+            if (response.isSuccessful) {
+                response.body()?.auction?.let { dto ->
+                    dao.insertAuctions(listOf(dto.toEntity()))
+                }
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Error al crear subasta: ${response.code()}"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
