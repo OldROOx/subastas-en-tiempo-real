@@ -7,3 +7,8 @@ data class BidDTO(
     val amount: Double,
     val created_at: String,
 )
+
+data class BidResponse (
+    val message: String,
+    val bids: List<BidDTO>
+)

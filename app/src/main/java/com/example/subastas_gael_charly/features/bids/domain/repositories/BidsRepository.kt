@@ -9,4 +9,6 @@ interface BidsRepository {
     fun joinAuction(auctionId: Int)
     fun placeBid(auctionId: Int, userId: Int, amount: Double)
     fun observeBids(): Flow<Bid>
+
+    suspend fun getBidsByAuction(id: Int): List<Bid>
 }

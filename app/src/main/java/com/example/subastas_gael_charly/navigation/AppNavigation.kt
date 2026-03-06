@@ -84,7 +84,9 @@ fun AppNavigation() {
                 ?.getString("auctionId")
                 ?.toIntOrNull() ?: return@composable
 
-            BidsScreen()
+            BidsScreen(
+                auctionId = auctionId
+            )
         }
     }
 }

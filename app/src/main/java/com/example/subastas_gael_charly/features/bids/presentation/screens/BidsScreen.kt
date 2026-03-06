@@ -8,6 +8,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,10 +20,21 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.subastas_gael_charly.features.bids.presentation.viewmodels.BidsViewModel
 
 @Composable
-fun BidsScreen(viewModel: BidsViewModel = hiltViewModel()) {
+fun BidsScreen(
+    auctionId: Int,
+    viewModel: BidsViewModel = hiltViewModel(),
+) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    LaunchedEffect(auctionId) {
+        viewModel.initAuction(auctionId)
+    }
+
     Column(Modifier.padding(16.dp)) {
+        Text("Subasta: ${state.auction?.title ?: "Cargando"}")
+        Text("Monto actual: ${state.auction?.currentPrice ?: 0.0}")
+        Text("Fin de la subasta: ${state.auction?.endTime ?: "Cargando"}")
+        Text("Id del usuario creador de la subasta: ${state.auction?.userId ?: "Cargando"}")
 
         OutlinedTextField(
             value = state.currentInput,
@@ -37,6 +50,12 @@ fun BidsScreen(viewModel: BidsViewModel = hiltViewModel()) {
             items(state.bids) { bid ->
                 Text("Monto:${bid.amount}")
             }
+        }
+    }
+
+    DisposableEffect (Unit) {
+        onDispose {
+            viewModel.disconnect()
         }
     }
 }

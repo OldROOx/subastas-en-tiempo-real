@@ -22,6 +22,15 @@ class AuctionRepositoryImpl @Inject constructor(
     private val webSocketDataSource: WebSocketDataSource
 ) : AuctionRepository {
 
+    override suspend fun getAuctionById(id: Int): Auction {
+        val response = api.getAuctionById(id)
+        return if (response.isSuccessful) {
+            response.body()?.auction?.toEntity()?.toDomain() ?: throw Exception("Auction not found")
+        } else {
+            throw Exception("Error al obtener la subasta: ${response.code()}")
+        }
+    }
+
     override fun getAuctionsStream(): Flow<List<Auction>> =
         dao.getAllAuctions().map { entities -> entities.map { it.toDomain() } }
 

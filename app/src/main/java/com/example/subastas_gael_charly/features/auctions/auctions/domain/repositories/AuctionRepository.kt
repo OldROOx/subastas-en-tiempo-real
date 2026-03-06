@@ -10,4 +10,6 @@ interface AuctionRepository {
     suspend fun placeBidRemote(auctionId: Int, userId: Int, amount: Double): Result<Unit>
     suspend fun createAuction(title: String, currentPrice: Double, endTime: String, userId: Int): Result<Unit>
     fun startRealTimeUpdates()
+
+    suspend fun getAuctionById(id: Int): Auction
 }

@@ -1,5 +1,6 @@
 package com.example.subastas_gael_charly.features.bids.data.repositories
 
+import com.example.subastas_gael_charly.features.bids.data.datasources.remote.api.BidApi
 import com.example.subastas_gael_charly.features.bids.data.datasources.remote.mapper.toDomain
 import com.example.subastas_gael_charly.features.bids.data.datasources.remote.socket.BidsSocketDataSource
 import com.example.subastas_gael_charly.features.bids.domain.entities.Bid
@@ -9,7 +10,8 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class BidsRepositoryImpl @Inject constructor(
-    private val dataSource: BidsSocketDataSource
+    private val dataSource: BidsSocketDataSource,
+    private val api: BidApi
 ) : BidsRepository {
 
     override fun connect() = dataSource.connect()
@@ -24,4 +26,13 @@ class BidsRepositoryImpl @Inject constructor(
 
     override fun observeBids(): Flow<Bid> =
         dataSource.bidsFlow.map { it.toDomain() }
+
+    suspend override fun getBidsByAuction(id: Int): List<Bid> {
+        val response = api.getBidsByAuction(id)
+        return if (response.isSuccessful) {
+            response.body()?.bids?.map { it.toDomain() } ?: emptyList()
+        } else {
+            emptyList()
+        }
+    }
 }
