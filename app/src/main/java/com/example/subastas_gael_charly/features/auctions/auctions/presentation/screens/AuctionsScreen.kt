@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.subastas_gael_charly.core.session.UserSession
 import com.example.subastas_gael_charly.features.auctions.auctions.presentation.components.AuctionItem
 import com.example.subastas_gael_charly.features.auctions.auctions.presentation.viewmodels.AuctionsViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -97,9 +98,12 @@ fun AuctionsScreen(
                 items(auctions) { auction ->
                     AuctionItem(
                         auction = auction,
-                        currentUserId = viewModel.currentUserId,
+                        currentUserId = UserSession.getCurrentUserId(),
                         onBidClick = { id, _, _, _ ->
                             onNavigateToBids(id)
+                        },
+                        onStatusChange = { id, status ->
+                            viewModel.setStatus(id, status)
                         }
                     )
                 }

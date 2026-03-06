@@ -65,4 +65,12 @@ class AuctionsViewModel @Inject constructor(
             }
         }
     }
+
+    fun setStatus(id: Int, status: Boolean) {
+        val new_status = !status
+        viewModelScope.launch {
+            repository.setAuctionStatus(id, new_status)
+        }
+        viewModelScope.launch { repository.refreshAuctions() }
+    }
 }

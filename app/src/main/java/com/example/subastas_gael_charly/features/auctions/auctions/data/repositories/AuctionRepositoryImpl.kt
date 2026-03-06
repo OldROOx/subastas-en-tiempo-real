@@ -4,7 +4,9 @@ import com.example.subastas_gael_charly.core.database.dao.AuctionDao
 import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.api.AuctionApi
 import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.mapper.toDomain
 import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.mapper.toEntity
+import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.AuctionStatusRequest
 import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.CreateAuctionRequest
+import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.PatchStatusRequest
 import com.example.subastas_gael_charly.features.auctions.auctions.data.datasources.remote.models.PlaceBidRequest
 import com.example.subastas_gael_charly.features.auctions.auctions.domain.entities.Auction
 import com.example.subastas_gael_charly.features.auctions.auctions.domain.repositories.AuctionRepository
@@ -90,5 +92,10 @@ class AuctionRepositoryImpl @Inject constructor(
                 dao.updatePrice(bid.auction_id, bid.amount)
             }
         }
+    }
+
+    override suspend fun setAuctionStatus(id: Int, status: Boolean) {
+        val request = PatchStatusRequest(status)
+        val response = api.patchAuctionStatus(id, request)
     }
 }

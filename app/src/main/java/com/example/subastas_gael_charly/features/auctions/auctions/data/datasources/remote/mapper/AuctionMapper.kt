@@ -9,7 +9,8 @@ fun AuctionDto.toEntity() = AuctionEntity(
     title = title,
     currentPrice = current_price,
     endTime = end_time,
-    status = status
+    status = status,
+    userId = user_id
 )
 
 fun AuctionEntity.toDomain() = Auction(
@@ -18,5 +19,5 @@ fun AuctionEntity.toDomain() = Auction(
     currentPrice = currentPrice,
     endTime = endTime,
     status = status,
-    userId = null
+    userId = userId
 )

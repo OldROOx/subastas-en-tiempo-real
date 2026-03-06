@@ -3,6 +3,7 @@ package com.example.subastas_gael_charly.core.di
 import android.content.Context
 import androidx.room.Room
 import com.example.subastas_gael_charly.core.database.AuctionDatabase
+import com.example.subastas_gael_charly.core.database.migrations.MIGRATION_1_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,7 +21,9 @@ object DatabaseModule {
             context,
             AuctionDatabase::class.java,
             "auctions_db"
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2)
+            .build()
     }
 
     @Provides

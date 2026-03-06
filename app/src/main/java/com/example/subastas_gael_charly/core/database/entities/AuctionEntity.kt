@@ -9,5 +9,6 @@ data class AuctionEntity(
     val title: String,
     val currentPrice: Double,
     val endTime: String,
-    val status: Boolean
+    val status: Boolean,
+    val userId: Int?
 )

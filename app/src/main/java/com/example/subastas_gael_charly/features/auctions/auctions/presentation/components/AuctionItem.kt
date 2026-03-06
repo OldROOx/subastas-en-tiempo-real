@@ -1,5 +1,6 @@
 package com.example.subastas_gael_charly.features.auctions.auctions.presentation.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -12,14 +13,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.subastas_gael_charly.features.auctions.auctions.domain.entities.Auction
+import com.example.subastas_gael_charly.features.auctions.auctions.domain.usescases.setAuctionStatus
 
 @Composable
 fun AuctionItem(
     auction: Auction,
     currentUserId: Int?,
-    onBidClick: (Int, Int?, Double, Double) -> Unit
+    onBidClick: (Int, Int?, Double, Double) -> Unit,
+    onStatusChange: (Int, Boolean) -> Unit
 ) {
     val isOwner = currentUserId != null && auction.userId == currentUserId
+    Log.d("AuctionItem", "currentUserId: $currentUserId")
+    Log.d("AuctionItem", "auction.userId: ${auction.userId}")
+    Log.d("AuctionItem", "isOwner: $isOwner")
 
     Card(
         modifier = Modifier
@@ -143,6 +149,20 @@ fun AuctionItem(
                             !auction.status -> "Cerrada"
                             else -> "Pujar"
                         },
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+
+                Button(
+                    onClick = {
+                        onStatusChange(auction.id, auction.status)
+                    },
+                    enabled = auction.status && isOwner,
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 10.dp)
+                ) {
+                    Text(
+                        text = "Cerrar",
                         style = MaterialTheme.typography.labelMedium
                     )
                 }

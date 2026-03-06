@@ -78,6 +78,7 @@ class BidsViewModel @Inject constructor(
     fun makeBid() {
         val auctionId = currentAuctionId ?: return
         val userId = currentUserId ?: return
+        if (userId == _uiState.value.auction?.userId) return
         val amount = _uiState.value.currentInput.toDoubleOrNull() ?: return
 
         // Guardar precio actual por si necesitamos hacer rollback
