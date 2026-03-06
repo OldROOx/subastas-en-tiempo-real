@@ -141,7 +141,7 @@ fun AuctionItem(
                         text = when {
                             isOwner -> "Tu subasta"
                             !auction.status -> "Cerrada"
-                            else -> "Pujar +$10"
+                            else -> "Pujar"
                         },
                         style = MaterialTheme.typography.labelMedium
                     )

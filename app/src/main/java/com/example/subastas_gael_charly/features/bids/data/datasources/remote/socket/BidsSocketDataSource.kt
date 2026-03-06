@@ -14,16 +14,18 @@ import javax.inject.Inject
 class BidsSocketDataSource @Inject constructor(
     private val socket: Socket
 ) {
-
     private val _bidsFlow = MutableSharedFlow<BidDTO>(
         replay = 1,
         extraBufferCapacity = 10
     )
     val bidsFlow: SharedFlow<BidDTO> = _bidsFlow
 
+    // FIX: idempotente — no conecta doble si ya está conectado
     fun connect() {
-        // observeBids()
-        socket.connect()
+        if (!socket.connected()) {
+            socket.connect()
+            Log.d("SOCKET", "Conectando...")
+        }
     }
 
     fun disconnect() {
@@ -32,6 +34,7 @@ class BidsSocketDataSource @Inject constructor(
 
     fun joinAuction(auctionId: Int) {
         socket.emit("join_auction", auctionId)
+        Log.d("SOCKET", "Unido a sala auction_$auctionId")
     }
 
     fun placeBid(auctionId: Int, userId: Int, amount: Double) {
@@ -41,26 +44,41 @@ class BidsSocketDataSource @Inject constructor(
             put("amount", amount)
         }
         socket.emit("place_bid", json)
+        Log.d("SOCKET", "Puja enviada: $json")
     }
 
     init {
         socket.on("new_bid") { args ->
-            Log.d("SOCKET", "RAW EVENT: ${args.joinToString()}")
+            Log.d("SOCKET", "new_bid recibido: ${args.joinToString()}")
             if (args.isNotEmpty()) {
-                val json = args[0] as JSONObject
-
-                val bid = BidDTO(
-                    id = json.getInt("id"),
-                    auction_id = json.getInt("auction_id"),
-                    user_id = json.getInt("user_id"),
-                    amount = json.getDouble("amount"),
-                    created_at = json.getString("created_at")
-                )
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    _bidsFlow.emit(bid)
+                try {
+                    val json = args[0] as JSONObject
+                    val bid = BidDTO(
+                        id = json.getInt("id"),
+                        auction_id = json.getInt("auction_id"),
+                        user_id = json.getInt("user_id"),
+                        amount = json.getDouble("amount"),
+                        created_at = json.getString("created_at")
+                    )
+                    CoroutineScope(Dispatchers.IO).launch {
+                        _bidsFlow.emit(bid)
+                    }
+                } catch (e: Exception) {
+                    Log.e("SOCKET", "Error parseando new_bid: ${e.message}")
                 }
             }
+        }
+
+        socket.on(Socket.EVENT_CONNECT) {
+            Log.d("SOCKET", "Conectado al servidor")
+        }
+
+        socket.on(Socket.EVENT_DISCONNECT) {
+            Log.d("SOCKET", "Desconectado del servidor")
+        }
+
+        socket.on(Socket.EVENT_CONNECT_ERROR) { args ->
+            Log.e("SOCKET", "Error de conexion: ${args.joinToString()}")
         }
     }
 }

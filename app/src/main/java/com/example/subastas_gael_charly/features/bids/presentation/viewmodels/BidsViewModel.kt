@@ -28,100 +28,107 @@ class BidsViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var currentAuctionId: Int? = null
-    private var currentUserId: Int? = null
+    private val currentUserId: Int? get() = UserSession.getCurrentUserId()
 
-    fun initAuction(auctionId: Int) {
-
-        if (currentAuctionId == auctionId) return
-
-        currentAuctionId?.let { repository.disconnect() }
-
-        currentAuctionId = auctionId
-        repository.connect()
-        repository.joinAuction(auctionId)
-
-
-
-        _uiState.update {
-            it.copy(bids = emptyList())
-        }
-
-        viewModelScope.launch {
-            _uiState.update {
-                it.copy(auction = auctionRepository.getAuctionById(auctionId))
-            }
-
-            val bids = repository.getBidsByAuction(auctionId)
-
-            _uiState.update {
-                it.copy(bids = bids)
-            }
-        }
-
-        /*
-        viewModelScope.launch {
-            observeBids().collect { bid ->
-                _uiState.update {
-                    it.copy(bids = it.bids + bid)
-                }
-            }
-        }
-        */
-    }
+    // Precio antes de la puja optimista, para hacer rollback si el servidor no responde
+    private var priceBeforeOptimisticUpdate: Double? = null
 
     init {
         repository.connect()
-        currentUserId = UserSession.getCurrentUserId()
 
         viewModelScope.launch {
             observeBids().collect { bid ->
-                val updateAuction = _uiState.value.auction
-                updateAuction?.currentPrice = bid.amount
+                if (bid.auctionId != currentAuctionId) return@collect
 
-                _uiState.update {
-                    it.copy(auction = updateAuction)
-                }
+                // Llegó la confirmación real del servidor:
+                // - Elimina el placeholder optimista (id = -1)
+                // - Agrega la puja real con su id definitivo
+                // - Sobreescribe el precio con el valor oficial (corrige si hubo diferencia)
+                // - Limpia el precio de rollback porque la operación fue exitosa
+                priceBeforeOptimisticUpdate = null
 
-                _uiState.update {
-                    it.copy(bids = it.bids + bid)
+                _uiState.update { state ->
+                    state.copy(
+                        auction = state.auction?.copy(currentPrice = bid.amount),
+                        bids = state.bids.filterNot { it.id == -1 } + bid
+                    )
                 }
             }
+        }
+    }
+
+    fun initAuction(auctionId: Int) {
+        if (currentAuctionId == auctionId) return
+        currentAuctionId = auctionId
+        repository.joinAuction(auctionId)
+        _uiState.update { it.copy(bids = emptyList(), auction = null, currentInput = "") }
+
+        viewModelScope.launch {
+            val auction = runCatching { auctionRepository.getAuctionById(auctionId) }.getOrNull()
+            _uiState.update { it.copy(auction = auction) }
+            val bids = repository.getBidsByAuction(auctionId)
+            _uiState.update { it.copy(bids = bids) }
         }
     }
 
     fun onAmountChange(value: String) {
-        _uiState.update {
-            it.copy(currentInput = value)
-        }
+        _uiState.update { it.copy(currentInput = value) }
     }
 
     fun makeBid() {
         val auctionId = currentAuctionId ?: return
-        val userId = currentUserId?: return
-        val amount = _uiState.value.currentInput.toDoubleOrNull()
+        val userId = currentUserId ?: return
+        val amount = _uiState.value.currentInput.toDoubleOrNull() ?: return
 
-        if (amount != null) {
-            placeBid(auctionId, userId, amount)
+        // Guardar precio actual por si necesitamos hacer rollback
+        priceBeforeOptimisticUpdate = _uiState.value.auction?.currentPrice
 
-            _uiState.update {
-                it.copy(currentInput = "")
-            }
+        // OPTIMISTIC UPDATE: actualizar UI al instante sin esperar al servidor
+        val optimisticBid = Bid(
+            id = -1,                  // placeholder, el servidor asignará el id real
+            auctionId = auctionId,
+            userId = userId,
+            amount = amount,
+            createdAt = "Enviando..."
+        )
 
-            val updateAuction = _uiState.value.auction
-            updateAuction?.currentPrice = amount
+        _uiState.update { state ->
+            state.copy(
+                auction = state.auction?.copy(currentPrice = amount),
+                bids = state.bids + optimisticBid,
+                currentInput = ""
+            )
+        }
 
-            _uiState.update {
-                it.copy(auction = updateAuction)
+        // Enviar al servidor — si falla, hacer rollback
+        viewModelScope.launch {
+            // Pequeño delay para que el socket tenga tiempo de responder
+            // Si en X ms no llega "new_bid" de confirmación, revertimos
+            kotlinx.coroutines.delay(5000)
+
+            // Si priceBeforeOptimisticUpdate sigue con valor, significa que el servidor
+            // no respondió con "new_bid" (el collect lo pone a null al llegar)
+            val rollbackPrice = priceBeforeOptimisticUpdate
+            if (rollbackPrice != null) {
+                priceBeforeOptimisticUpdate = null
+                _uiState.update { state ->
+                    state.copy(
+                        auction = state.auction?.copy(currentPrice = rollbackPrice),
+                        bids = state.bids.filterNot { it.id == -1 }
+                    )
+                }
             }
         }
+
+        placeBid(auctionId, userId, amount)
+    }
+
+    fun disconnect() {
+        repository.disconnect()
     }
 
     override fun onCleared() {
         repository.disconnect()
         super.onCleared()
-    }
-
-    fun disconnect() {
-        repository.disconnect()
     }
 }
