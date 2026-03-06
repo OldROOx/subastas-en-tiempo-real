@@ -1,12 +1,17 @@
 package com.example.subastas_gael_charly.features.auctions.auctions.presentation.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Title
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.subastas_gael_charly.features.auctions.auctions.presentation.viewmodels.AuctionsViewModel
@@ -40,14 +45,19 @@ fun CreateAuctionScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Nueva Subasta") },
+                title = {
+                    Text(
+                        text = "Nueva subasta",
+                        fontWeight = FontWeight.Bold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Regresar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Regresar")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         }
@@ -55,45 +65,76 @@ fun CreateAuctionScreen(
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(24.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "Informacion de la subasta",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                    Text(
+                        text = "Completa los datos para publicar tu articulo",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    )
+                }
+            }
+
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Título de la subasta") },
+                label = { Text("Titulo del articulo") },
+                leadingIcon = { Icon(Icons.Default.Title, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = RoundedCornerShape(14.dp)
             )
 
             OutlinedTextField(
                 value = price,
                 onValueChange = { price = it },
                 label = { Text("Precio inicial") },
+                leadingIcon = { Icon(Icons.Default.AttachMoney, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                singleLine = true
+                singleLine = true,
+                shape = RoundedCornerShape(14.dp),
+                placeholder = { Text("0.00") }
             )
 
             OutlinedTextField(
                 value = endTime,
                 onValueChange = { endTime = it },
-                label = { Text("Fecha fin (yyyy-MM-ddTHH:mm:ss)") },
+                label = { Text("Fecha de fin") },
+                leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                shape = RoundedCornerShape(14.dp),
+                placeholder = { Text("yyyy-MM-ddTHH:mm:ss") }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.weight(1f))
 
             Button(
                 onClick = {
                     val parsedPrice = price.toDoubleOrNull() ?: 0.0
                     viewModel.createAuction(title, parsedPrice, endTime)
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(14.dp)
             ) {
-                Text("Crear Subasta")
+                Text("Publicar subasta", style = MaterialTheme.typography.labelLarge)
             }
         }
     }

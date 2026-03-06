@@ -64,6 +64,12 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
 
+    // Iconos extendidos de Material (Gavel, Visibility, AttachMoney, etc.)
+    implementation("androidx.compose.material:material-icons-extended")
+
+    // Google Fonts para Material Design 3
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.8")
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
@@ -84,9 +90,6 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     implementation("io.socket:socket.io-client:2.1.0") {
         exclude(group = "org.json", module = "json")
